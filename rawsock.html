@@ -1,0 +1,668 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>C Language Examples of IPv4 and IPv6 Raw Sockets for Linux</title>
+<meta name="title" content="C language examples of IPv4 and IPv6 raw internet sockets for linux." />
+<meta name="description" content="C language examples of IPv4 and IPv6 raw internet sockets for linux." />
+<meta name="keywords" content="C language, example, IPv4, IPv6, raw socket, PF_PACKET, SOCK_RAW, SOCK_DGRAM, ancillary data, linux, network programming" />
+
+<style type="text/css">
+body
+
+p
+{
+  font-size: 12pt;
+  text-align: left;
+}
+
+p.title
+{
+  font-size: 18pt;
+  text-align: center;
+  text-decoration: underline;
+}
+
+p.bold
+{
+  font-weight: bold;
+}
+
+p.signature
+{
+  font-size: 10pt;
+}
+
+hr
+{
+  height: 1px;
+  color: black;
+}
+
+ul
+{
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+table
+{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table, th, td
+{
+  text-align: left;
+}
+
+table.header
+{
+  border: none;
+}
+
+table.data
+{
+  border: 1px solid black;
+}
+
+td
+{
+  vertical-align: middle;
+}
+
+td.first-col
+{
+  width: 10%;
+  border: 1px solid black;
+  padding: 5px;
+}
+
+td.second-col
+{
+  border: 1px solid black;
+  padding: 5px;
+}
+
+td.head-desc
+{
+  width: 5em;
+  padding: 0px;
+}
+
+</style>
+</head>
+
+<body>
+
+<p class="title">C Language Examples of IPv4 and IPv6 Raw Sockets for Linux</p>
+
+<p>I have recently been investigating raw socket programming in C for linux and I decided to provide a collection of routines I have prepared. The intention here is to be able to arbitrarily set the various parameters within a packet.</p>
+
+<p>Rather than use command-line arguments, each example has hard-coded values, so you need to modify each example to suit your preferences.</p>
+
+<p>You must run these as root to obtain raw sockets.</p>
+
+<p class="bold">IPv4</p>
+
+<p>Three combinations of the <i>Domain</i>, <i>Type</i>, and <i>Protocol</i> arguments are shown here. There are other possible combinations you could try. The packet parameters that can be modified are determined by which combination you choose.</p>
+
+<p>In the Table 1 examples below, we tell the kernal the IP header is included (by us) by using setsockopt() and the IP_HDRINCL flag, and we can modify all values within the packet, but the kernal fills out the layer 2 (data link) information (source and next-hop MAC addresses) for us.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 1:</td>
+    <td>sd = socket (AF_INET, SOCK_RAW, IPPROTO_RAW);</td>
+  </tr>
+  <tr>
+    <td class="head-desc"> </td>
+    <td>The kernel fills out layer 2 (data link) information (MAC addresses) for us.</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp4.c">tcp4.c</a></td>
+    <td class="second-col">Send SYN packet (an example with no TCP data).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="get4.c">get4.c</a></td>
+    <td class="second-col">Send HTTP GET (an example with TCP data) (<a href="note1.html">note</a>).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp4.c">icmp4.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp4.c">udp4.c</a></td>
+    <td class="second-col">Send UDP packet with data.</td>
+  </tr>
+</table>
+
+<p>In the Table 2 examples, we fill out all values, including the layer 2 (data link) information (source and next-hop MAC addresses). To do this, we must know the MAC address of the router/host the frames will be routed to next (<a href="mac.html">more explanation</a>), as well as the MAC address of the network interface ("network card") we're sending the packet from.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 2:</td>
+    <td>sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));</td>
+  </tr>
+  <tr>
+    <td class="head-desc"> </td>
+    <td>We provide layer 2 (data link) information. i.e., we specify ethernet frame header with MAC addresses.</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp4_ll.c">tcp4_ll.c</a></td>
+    <td class="second-col">Send SYN packet (an example with no TCP data).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="get4_ll.c">get4_ll.c</a></td>
+    <td class="second-col">Send HTTP GET (an example with TCP data) (<a href="note1.html">note</a>).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp4_ll.c">icmp4_ll.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="ping4_ll.c">ping4_ll.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data and receive reply. i.e., ping</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp4_ll.c">udp4_ll.c</a></td>
+    <td class="second-col">Send UDP packet with data.</td>
+  </tr>
+</table>
+
+<p>In the Table 3 examples, we fill out all values, but only including the <i>destination</i> (i.e., next-hop) layer 2 (data link) information (not source MAC address). This is called a "cooked packet." To do this, we must know the MAC address of the router/host the frames will be routed to next (<a href="mac.html">more explanation</a>).</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 3:</td>
+    <td>sd = socket (PF_PACKET, SOCK_DGRAM, htons (ETH_P_ALL));</td>
+  </tr>
+  <tr>
+    <td class="head-desc"> </td>
+    <td>We provide a "cooked" packet with destination MAC address in struct sockaddr_ll.</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp4_cooked.c">tcp4_cooked.c</a></td>
+    <td class="second-col">Send SYN packet (an example with no TCP data).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="get4_cooked.c">get4_cooked.c</a></td>
+    <td class="second-col">Send HTTP GET (an example with TCP data) (<a href="note1.html">note</a>).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp4_cooked.c">icmp4_cooked.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp4_cooked.c">udp4_cooked.c</a></td>
+    <td class="second-col">Send UDP packet with data.</td>
+  </tr>
+</table>
+
+<p>To learn the next-hop's MAC address for use in the Table 2 and 3 examples above, you must use the Address Resolution Protocol (ARP). I have included an example which sends an ARP request ethernet frame as well as an example that receives an ARP reply ethernet frame. Additionally, I have included some router solicitation and advertisement routines.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 4:</td>
+    <td>Miscellaneous</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="arp.c">arp.c</a></td>
+    <td class="second-col">Send an ARP request ethernet frame.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="receive_arp.c">receive_arp.c</a></td>
+    <td class="second-col">Receive an ARP reply ethernet frame.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="rs4.c">rs4.c</a></td>
+    <td class="second-col">Send a router solicitation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="ra4.c">ra4.c</a></td>
+    <td class="second-col">Send a router advertisement.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="receive_ra4.c">receive_ra4.c</a></td>
+    <td class="second-col">Receive a router advertisement.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tr4_ll.c">tr4_ll.c</a></td>
+    <td class="second-col">TCP/ICMP/UDP traceroute</td>
+  </tr>
+</table>
+
+<p>Table 5 below provides some examples of packet fragmentation. The first file, called "data", contains a list of numbers. The following three routines use it as data for the upper layer protocols. Feel free to provide to the routines your own data in any manner you prefer.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 5:</td>
+    <td>Fragmentation</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp4_frag.c">tcp4_frag.c</a></td>
+    <td class="second-col">Send TCP packet with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp4_frag.c">icmp4_frag.c</a></td>
+    <td class="second-col">Send ICMP packet with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp4_frag.c">udp4_frag.c</a></td>
+    <td class="second-col">Send UDP packet with enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p>Table 6 below presents examples of packets with IP and TCP options.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 6:</td>
+    <td>IP and TCP Options</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp4_maxseg.c">tcp4_maxseg.c</a></td>
+    <td class="second-col">Send TCP packet with a TCP option which sets maximum segment size.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp4_maxseg_tsopt.c">tcp4_maxseg_tsopt.c</a></td>
+    <td class="second-col">Send TCP packet with two TCP options: set maximum segment size, and provide time stamp.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp4_maxseg-timestamp.c">tcp4_maxseg-timestamp.c</a></td>
+    <td class="second-col">Send TCP packet with IP option to send time stamp, and TCP option to set maximum segment size.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp4_maxseg-security.c">tcp4_maxseg-security.c</a></td>
+    <td class="second-col">Send TCP packet with security IP option and TCP option to set maximum segment size.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp4_2ip-opts_2tcp_opts.c">tcp4_2ip-opts_2tcp_opts.c</a></td>
+    <td class="second-col">Send TCP packet with two IP options and two TCP options.</td>
+  </tr>
+</table>
+
+<p class="bold">IPv6</p>
+
+<p>In IPv6, we have less options at our disposal for modifying packet values (see <a href="http://www.ietf.org/rfc/rfc3542.txt">RFC 3542</a> and <a href="http://www.ietf.org/rfc/rfc3493.txt">RFC 3493</a>). In particular, IPv6 has no equivalent to using setsockopt() with the IP_HDRINCL flag (see Table 1 in IPv4 section above). Without doing something special (using neighbor discovery), we can only change the hop limit and traffic class to arbitrary values. Neighbor discovery is the IPv6 replacement for ARP in IPv4.</p>
+
+<p>Before we try some neighbor discovery, let's take a quick look at a couple of examples where we don't use neighbor discovery, and thus can only change the hop limit and traffic class values in the IPv6 header.</p>
+
+<p>You can use either the ancillary data method, or a call to setsockopt() with option level IPPROTO_IPV6 and option names IPV6_TCLASS, IPV6_UNICAST_HOPS, or IPV6_MULTICAST_HOPS. Note that changes made to the properties of the socket with setsockopt() will remain in effect for all packets sent through the socket, whereas ancillary data is associated with a particular packet.</p>
+
+<p>Examples <i>icmp6_ancillary1.c</i> and <i>icmp6_ancillary2.c</i> use the bind() function to bind the socket to the source IP address. Example <i>icmp6_ancillary3.c</i> sets the source IP address using ancillary data. In either case, the supplied source address must actually be assigned to the interface or else the sendto() call will fail and the packet won't be sent.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 7:</td>
+    <td>Without Using Neighbor Discovery (ND)</td>
+  </tr>
+  <tr>
+    <td class="head-desc"></td>
+    <td>Ancillary data method</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="icmp6_ancillary1.c">icmp6_ancillary1.c</a></td>
+    <td class="second-col">Change hop limit using ancillary data. Source IP address set using bind().</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_ancillary2.c">icmp6_ancillary2.c</a></td>
+    <td class="second-col">Change hop limit and specify source interface using ancillary data. Source IP address set using bind().</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_ancillary3.c">icmp6_ancillary3.c</a></td>
+    <td class="second-col">Change hop limit, specify source interface, and source IP address using ancillary data.</td>
+  </tr>
+</table>
+
+<p>If we wish to have the ability to change any parameter in the IPv6 header, we need to have the source and destination MAC addresses available (<a href="mac.html">more explanation</a>). In this case we have the same sort of options available to us as we did in Tables 2 and 3 above for IPv4. To recap, these are:</p>
+
+<table class="data">
+  <tr>
+    <td class="first-col">Table 2</td>
+    <td class="second-col"><ul><li>sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));</li>
+                               <li>We provide layer 2 (data link) information. i.e., we specify ethernet frame header with MAC addresses.</li>
+                           </ul></td>
+  </tr>
+  <tr>
+    <td class="first-col">Table 3</td>
+    <td class="second-col"><ul><li>sd = socket (PF_PACKET, SOCK_DGRAM, htons (ETH_P_ALL));</li>
+                               <li>We provide a "cooked" packet with destination MAC address in struct sockaddr_ll.</li>
+                           </ul></td>
+  </tr>
+</table>
+
+<p>The neighbor discovery process is used to obtain the MAC address of a link-local node's interface card (could be the MAC address of a link-local router or host's interface the frames will be routed through). First we send a <i>neighbor solicitation</i> with our MAC address to the target node, and then it replies with a <i>neighbor advertisement</i> that contains its MAC address. The neighbor solicitation is sent to the target node's <i>solicited-node multicast address</i>.</p>
+
+<p>Some router discovery routines are also included. Router solicitations are issued by a host looking for local routers, and router advertisements are issued by routers announcing their presence on the LAN.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 8:</td>
+    <td>Neighbor Discovery and Router Discovery</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="ns.c">ns.c</a></td>
+    <td class="second-col">Send a neighbor solicitation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="na.c">na.c</a></td>
+    <td class="second-col">Send a neighbor advertisement (this example doesn't detect and respond to a solicitation).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="receive_na.c">receive_na.c</a></td>
+    <td class="second-col">Receive a neighbor advertisement and extract lots of info including MAC address.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="rs6.c">rs6.c</a></td>
+    <td class="second-col">Send a router solicitation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="ra6.c">ra6.c</a></td>
+    <td class="second-col">Send a router advertisement (this example doesn't detect and respond to a solicitation).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="receive_ra6.c">receive_ra6.c</a></td>
+    <td class="second-col">Receive a router advertisement and extract lots of info including MAC address.</td>
+  </tr>
+</table>
+
+<p>Now that we have used neighbor discovery to determine the MAC address of a link-local router or host, we can go ahead and modify all parameters within
+the ethernet frame.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 9:</td>
+    <td>sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp6_ll.c">tcp6_ll.c</a></td>
+    <td class="second-col">Send SYN packet (an example with no TCP data).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="get6_ll.c">get6_ll.c</a></td>
+    <td class="second-col">Send HTTP GET (an example with TCP data) (<a href="note1.html">note</a>).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_ll.c">icmp6_ll.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="ping6_ll.c">ping6_ll.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data and receive reply. i.e., ping</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp6_ll.c">udp6_ll.c</a></td>
+    <td class="second-col">Send UDP packet with data.</td>
+  </tr>
+</table>
+
+<p>As in the IPv4 examples of Table 3, in Table 10 below we fill out all values, but only including the <i>destination</i> (i.e., next hop) layer 2 (data link) information and <i>not the source</i> MAC address. This is called a "cooked packet." As in Table 9 above, we must know the MAC address of the router/host the frames will be routed to next (<a href="mac.html">more explanation</a>).</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 10:</td>
+    <td>sd = socket (PF_PACKET, SOCK_DGRAM, htons (ETH_P_ALL));</td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp6_cooked.c">tcp6_cooked.c</a></td>
+    <td class="second-col">Send SYN packet (an example with no TCP data).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="get6_cooked.c">get6_cooked.c</a></td>
+    <td class="second-col">Send HTTP GET (an example with TCP data) (<a href="note1.html">note</a>).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_cooked.c">icmp6_cooked.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp6_cooked.c">udp6_cooked.c</a></td>
+    <td class="second-col">Send UDP packet with data.</td>
+  </tr>
+</table>
+
+<p>For the transition from IPv4 to IPv6, a mechanism of tunneling IPv6 over IPv4 (6to4) has been established. Table 11 presents some 6to4 examples.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 11:</td>
+    <td>Tunneling IPv6 over IPv4 (6to4) - <a href="http://www.ietf.org/rfc/rfc4213.txt">RFC 4213</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp6_6to4.c">tcp6_6to4.c</a></td>
+    <td class="second-col">Send SYN packet (an example with no TCP data).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="get6_6to4.c">get6_6to4.c</a></td>
+    <td class="second-col">Send HTTP GET (an example with TCP data) (<a href="note1.html">note</a>).</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_6to4.c">icmp6_6to4.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="ping6_6to4.c">ping6_6to4.c</a></td>
+    <td class="second-col">Send ICMP Echo Request with data and receive reply. i.e., ping</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp6_6to4.c">udp6_6to4.c</a></td>
+    <td class="second-col">Send UDP packet with data.</td>
+  </tr>
+</table>
+
+<p>The following table provides some examples of packet fragmentation. In IPv6, fragmentation requires the introduction of a <i>fragment extension header</i>. The first file, called "data", contains a list of numbers, and the following routines use it as data for the upper layer protocols. Feel free to provide to the routines your own data in any manner you prefer.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 12:</td>
+    <td>Fragmentation - Section 4.5 of <a href="http://www.ietf.org/rfc/rfc2460.txt">RFC 2460</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_frag.c">tcp6_frag.c</a></td>
+    <td class="second-col">Send TCP packet with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_frag.c">icmp6_frag.c</a></td>
+    <td class="second-col">Send ICMP packet with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp6_frag.c">udp6_frag.c</a></td>
+    <td class="second-col">Send UDP packet with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_6to4_frag.c">tcp6_6to4_frag.c</a></td>
+    <td class="second-col">Send IPv6 TCP packet through IPv4 tunnel with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="icmp6_6to4_frag.c">icmp6_6to4_frag.c</a></td>
+    <td class="second-col">Send IPv6 ICMP packet through IPv4 tunnel with enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="udp6_6to4_frag.c">udp6_6to4_frag.c</a></td>
+    <td class="second-col">Send IPv6 UDP packet through IPv4 tunnel with enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p>Table 13 below provides examples of sending TCP packets with TCP options.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 13:</td>
+    <td>TCP Options - Section 3.1 of <a href="http://www.ietf.org/rfc/rfc793.txt">RFC 793</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="tcp6_maxseg.c">tcp6_maxseg.c</a></td>
+    <td class="second-col">Send TCP packet with a TCP option which sets maximum segment size.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_maxseg_tsopt.c">tcp6_maxseg_tsopt.c</a></td>
+    <td class="second-col">Send TCP packet with two TCP options: set maximum segment size, and provide time stamp.</td>
+  </tr>
+</table>
+
+<p>Table 14 provides an example of sending a TCP packet with a hop-by-hop extension header and enough TCP data to require fragmentation. The hop-by-hop header contains two options: a router alert, and a PadN padding option which is required to pad to the appropriate boundary. For demonstration purposes here, the router alert option provides a value which is currently unassigned by <a href="http://www.iana.org">IANA</a> (see Section 2.1 of <a href="http://tools.ietf.org/rfc/rfc2711.txt">RFC 2711</a>).</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 14:</td>
+    <td>Hop-by-Hop Extension Header - Section 4.3 of <a href="http://www.ietf.org/rfc/rfc2460.txt">RFC 2460</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_frag.c">tcp6_hop_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header with router alert option and enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p>The following few tables give examples of the authentication extension header (AH) and the encapsulating security payload extension header (ESP header). The AH provides data origin and integrity authentication. The ESP header provides confidentiality, data origin and integrity authentication, an anti-replay service, and limited traffic flow confidentiality. The main difference between the AH and ESP headers is the extent of coverage. Specifically, ESP does not protect any IP header fields unless those fields are encapsulated by ESP (tunnel mode). The respective RFCs (given below) explain the encryption requirements; no encryption is done here in the examples. For more details on how to use AH and ESP in various network environments, see the security architecture document <a href="http://www.ietf.org/rfc/rfc4301.txt">RFC 4301</a>. The IP security (IPsec) protocols (AH and ESP) can be used in either transport mode or tunnel mode. Section 5.1.2.2 of <a href="http://www.ietf.org/rfc/rfc4301.txt">RFC 4301</a> states that in tunnel mode, the inner extension headers, if any, are not copied to become outer extension headers, although new outer extension headers can be created as desired.</p>
+
+<p>Table 15 provides an example of sending a TCP packet with a hop-by-hop extension header, authentication extension header, and enough TCP data to require fragmentation. The hop-by-hop header contains two options: a router alert, and a PadN padding option which is required to pad to the appropriate boundary. For demonstration purposes here, the router alert option provides a value which is currently unassigned by <a href="http://www.iana.org">IANA</a> (see Section 2.1 of <a href="http://tools.ietf.org/rfc/rfc2711.txt">RFC 2711</a>). Here, the authentication header carries a random bogus integrity check value (ICV) for demonstration; normally, this is computed as per Section 3 of <a href="http://www.ietf.org/rfc/rfc2402.txt">RFC 2402</a>. Since the authentication header can be used in transport or tunnel mode, an example is given of each.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 15:</td>
+    <td>Authentication Extension Header - <a href="http://www.ietf.org/rfc/rfc2402.txt">RFC 2402</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_auth-tr_frag.c">tcp6_hop_auth-tr_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header with router alert option, authentication extension header (in transport mode), and enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_auth-tun_frag.c">tcp6_hop_auth-tun_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header with router alert option, authentication extension header (in tunnel mode), and enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p>Table 16 provides an example of sending a TCP packet with a hop-by-hop extension header, ecapsulating security payload (ESP) extension header, and enough TCP data to require fragmentation. The hop-by-hop header is the same as in Table 15. The authentication data portion of the ESP header is the same as the authentication data used in Table 15. Similar to the authentication header, the ESP header can be used in transport or tunnel mode, so an example is given of each.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 16:</td>
+    <td>Encapsulating Security Payload (ESP) Extension Header - <a href="http://www.ietf.org/rfc/rfc2406.txt">RFC 2406</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_esp-tr_frag.c">tcp6_hop_esp-tr_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header with router alert option, ESP extension header (in transport mode), and enough data to require fragmentation.</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_esp-tun_frag.c">tcp6_hop_esp-tun_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header with router alert option, ESP extension header (in tunnel mode), and enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p>Table 17 provides an example of sending a TCP packet with a hop-by-hop extension header with a router alert option, destination extension header (last) with an Identifier-Locator Network Protocol (ILNP) nonce option, and enough TCP data to require fragmentation. The hop-by-hop header is the same as in Table 15. Here "last" means a destination header that is to be processed only by the final destination node. This is relevent in terms of where in the packet the destination header is placed. A destination header can also be placed such that it is processed by devices specified within a routing header.</p>
+
+<p>If you examine the code, you'll see that when multiple extension headers are introduced, a more generalized approach to chaining the headers (via Next Header fields) is going to be necessary, rather than long and awkward lists of "if" statments, as I have here.</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 17:</td>
+    <td>Destination Extension Header (last) - <a href="http://www.ietf.org/rfc/rfc2460.txt">RFC 2460</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_dst_frag.c">tcp6_hop_dst_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header, destination extension header (last), and enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p>Table 18 gives an example of a routing header. There are several possible types of routing header, specified in the Routing Type field of the header itself. Types 0 and 1 routing headers have been deprecated (<a href="http://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xml">IANA Parameters List</a>). Here we use a type 3 routing header, which is a Source Routing Header for the routing protocol for low-power and lossy networks (RPL).</p>
+
+<table class="header">
+  <tr>
+    <td class="head-desc">Table 18:</td>
+    <td>Routing Extension Header (Type 3) - <a href="http://www.ietf.org/rfc/rfc6554.txt">RFC 6554</a></td>
+  </tr>
+</table>
+
+<table class="data">
+  <tr>
+    <td class="first-col"><a href="data">data</a></td>
+    <td class="second-col">12390-byte file to use as upper layer protocol data</td>
+  </tr>
+  <tr>
+    <td class="first-col"><a href="tcp6_hop_route3_frag.c">tcp6_hop_route3_frag.c</a></td>
+    <td class="second-col">Send TCP packet with a hop-by-hop extension header, type 3 routing extension header, and enough data to require fragmentation.</td>
+  </tr>
+</table>
+
+<p class="signature">P. David Buchan <a href="mailto:pdbuchan@yahoo.com">pdbuchan@yahoo.com</a></p>
+<p class="signature">September 23, 2013</p>
+
+</body>
+</html>
+<!-- text below generated by server. PLEASE REMOVE --><!-- Counter/Statistics data collection code --><script language="JavaScript" src="http://l.yimg.com/d/lib/smb/js/hosting/cp/js_source/whv2_001.js"></script><script language="javascript">geovisit();</script><noscript><img src="http://visit.webhosting.yahoo.com/visit.gif?us1383418094" alt="setstats" border="0" width="1" height="1"></noscript>
